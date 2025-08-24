@@ -1,6 +1,8 @@
+import { createEffect } from "solid-js";
 import { Installation } from "../../../installation";
 import { Theme } from "./context/theme";
-import { TextAttributes } from "@opentui/core"
+import { InputRenderable, TextAttributes } from "@opentui/core"
+import { useDialog } from "./ui/dialog";
 
 export function Home() {
   return (
@@ -16,36 +18,54 @@ export function Home() {
         </group>
       </group>
       <group paddingTop={3} >
-        <group flexDirection="row">
-          <group>
-            <text fg={Theme.textMuted}>┃</text>
-            <text fg={Theme.textMuted}>┃</text>
-            <text fg={Theme.textMuted}>┃</text>
-          </group>
-          <box backgroundColor={Theme.backgroundElement} width={3} border={false} justifyContent="center" alignItems="center">
-            <text attributes={TextAttributes.BOLD} fg={Theme.primary}>{">"}</text>
-          </box>
-          <box border={false} paddingTop={1} paddingBottom={2} backgroundColor={Theme.backgroundElement}>
-            <input focused={false} focusedBackgroundColor={Theme.backgroundElement} cursorColor={Theme.primary} backgroundColor={Theme.backgroundElement} width={70} />
-          </box>
-          <box backgroundColor={Theme.backgroundElement} width={1} border={false} justifyContent="center" alignItems="center">
-          </box>
-          <group>
-            <text fg={Theme.textMuted}>┃</text>
-            <text fg={Theme.textMuted}>┃</text>
-            <text fg={Theme.textMuted}>┃</text>
-          </group>
+        <Prompt />
+      </group >
+    </group>
+  )
+}
+
+function Prompt() {
+  let input: InputRenderable
+  const dialog = useDialog()
+
+  createEffect(() => {
+    if (dialog.stack.length === 0 && input)
+      input.focus()
+    if (dialog.stack.length > 0)
+      input.blur()
+  })
+
+  return (
+    <group>
+      <group flexDirection="row">
+        <group>
+          <text fg={Theme.textMuted}>┃</text>
+          <text fg={Theme.textMuted}>┃</text>
+          <text fg={Theme.textMuted}>┃</text>
         </group>
-        <group paddingLeft={2} paddingRight={2} flexDirection="row" justifyContent="space-between">
-          <group flexDirection="row">
-            <text>enter </text>
-            <text fg={Theme.textMuted}>send</text>
-          </group>
-          <group flexDirection="row">
-            <text fg={Theme.textMuted}>opencode </text>
-            <text>Sonic</text>
-          </group>
-        </group >
+        <box backgroundColor={Theme.backgroundElement} width={3} border={false} justifyContent="center" alignItems="center">
+          <text attributes={TextAttributes.BOLD} fg={Theme.primary}>{">"}</text>
+        </box>
+        <box border={false} paddingTop={1} paddingBottom={2} backgroundColor={Theme.backgroundElement}>
+          <input ref={r => input = r} onMouseDown={r => r.target?.focus()} focusedBackgroundColor={Theme.backgroundElement} cursorColor={Theme.primary} backgroundColor={Theme.backgroundElement} width={70} />
+        </box>
+        <box backgroundColor={Theme.backgroundElement} width={1} border={false} justifyContent="center" alignItems="center">
+        </box>
+        <group>
+          <text fg={Theme.textMuted}>┃</text>
+          <text fg={Theme.textMuted}>┃</text>
+          <text fg={Theme.textMuted}>┃</text>
+        </group>
+      </group>
+      <group paddingLeft={2} paddingRight={2} flexDirection="row" justifyContent="space-between">
+        <group flexDirection="row">
+          <text>enter </text>
+          <text fg={Theme.textMuted}>send</text>
+        </group>
+        <group flexDirection="row">
+          <text fg={Theme.textMuted}>opencode </text>
+          <text>Sonic</text>
+        </group>
       </group >
     </group>
   )

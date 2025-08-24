@@ -3,12 +3,13 @@ import { render, useKeyHandler, useRenderer, useSelectionHandler, useTerminalDim
 import { TextAttributes } from "@opentui/core"
 import { RouteProvider, useRoute } from "./context/route"
 import { Home } from "./home"
-import { Switch, Match, createSignal, Show } from "solid-js"
+import { Switch, Match, createSignal, Show, For } from "solid-js"
+import { Dynamic } from "solid-js/web"
 import { Theme } from "./context/theme"
 import { Installation } from "../../../installation"
 import { Global } from "../../../global"
-import { Dialog } from "./ui/dialog"
-import { Log } from "../../../util/log"
+import { Dialog, DialogProvider, useDialog } from "./ui/dialog"
+import { DialogSelect } from "./ui/dialog-select"
 
 export const OpentuiCommand = cmd({
   command: "opentui",
@@ -16,7 +17,9 @@ export const OpentuiCommand = cmd({
   handler: async () => {
     render(() => (
       <RouteProvider>
-        <App />
+        <DialogProvider>
+          <App />
+        </DialogProvider>
       </RouteProvider>
     ), {
 
@@ -28,16 +31,20 @@ function App() {
   const route = useRoute()
   const dimensions = useTerminalDimensions()
   const renderer = useRenderer()
-  const [dialog, setDialog] = createSignal(false)
+  const dialog = useDialog()
+
   useKeyHandler((evt) => {
+    console.log(evt)
+    if (evt.meta && evt.name === "d") {
+      renderer.console.toggle()
+      return
+    }
     if (evt.meta && evt.name === "m") {
-      setDialog(v => !v)
+      dialog.replace(<DialogSelect title="Select model" />)
+      return
     }
   })
-  useSelectionHandler((evt) => {
-    console.log(evt.getSelectedText())
-    renderer.console.show()
-  })
+
   return (
     <box border={false} width={dimensions().width} height={dimensions().height} backgroundColor={Theme.background}>
       <group flexDirection="column" flexGrow={1}>
@@ -67,11 +74,6 @@ function App() {
           </box>
         </group>
       </box>
-      <group position="absolute">
-        <Dialog show={dialog()} onClose={() => setDialog(false)}>
-          <group height={10} />
-        </Dialog>
-      </group>
     </box>
   )
 }
