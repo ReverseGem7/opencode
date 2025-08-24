@@ -4,6 +4,7 @@
   "compilerOptions": {
     "jsx": "preserve",
     "jsxImportSource": "@opentui/solid",
+    "moduleResolution": "bundler",
     "lib": [
       "ESNext",
       "DOM.Iterable"

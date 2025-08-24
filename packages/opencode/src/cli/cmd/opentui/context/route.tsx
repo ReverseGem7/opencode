@@ -27,7 +27,7 @@ function init() {
 
 export type RouteContext = ReturnType<typeof init>
 
-const ctx = createContext<RouteContext>(init())
+const ctx = createContext<RouteContext>()
 
 export function RouteProvider(props: ParentProps) {
   const value = init()

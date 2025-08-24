@@ -1,28 +1,38 @@
 import { cmd } from "../cmd"
-import { render, useKeyHandler, useRenderer, useSelectionHandler, useTerminalDimensions } from "@opentui/solid"
+import { render, useKeyHandler, useRenderer, useTerminalDimensions } from "@opentui/solid"
 import { TextAttributes } from "@opentui/core"
 import { RouteProvider, useRoute } from "./context/route"
 import { Home } from "./home"
-import { Switch, Match, createSignal, Show, For } from "solid-js"
-import { Dynamic } from "solid-js/web"
+import { Switch, Match } from "solid-js"
 import { Theme } from "./context/theme"
 import { Installation } from "../../../installation"
 import { Global } from "../../../global"
-import { Dialog, DialogProvider, useDialog } from "./ui/dialog"
+import { DialogProvider, useDialog } from "./ui/dialog"
 import { DialogSelect } from "./ui/dialog-select"
+import { entries, flatMap, map, pipe } from "remeda"
+import { bootstrap } from "../../bootstrap"
+import { SDKProvider } from "./context/sdk"
+import { SyncProvider, useSync } from "./context/sync"
 
 export const OpentuiCommand = cmd({
   command: "opentui",
   describe: "print hello",
   handler: async () => {
-    render(() => (
-      <RouteProvider>
-        <DialogProvider>
-          <App />
-        </DialogProvider>
-      </RouteProvider>
-    ), {
-
+    await bootstrap({ cwd: process.cwd() }, async () => {
+      await render(() => (
+        <RouteProvider>
+          <DialogProvider>
+            <SDKProvider>
+              <SyncProvider>
+                <App />
+              </SyncProvider>
+            </SDKProvider>
+          </DialogProvider>
+        </RouteProvider>
+      ), {
+        targetFps: 60,
+        gatherStats: false,
+      })
     })
   },
 })
@@ -32,15 +42,28 @@ function App() {
   const dimensions = useTerminalDimensions()
   const renderer = useRenderer()
   const dialog = useDialog()
+  const sync = useSync()
 
-  useKeyHandler((evt) => {
-    console.log(evt)
+  useKeyHandler(async (evt) => {
     if (evt.meta && evt.name === "d") {
       renderer.console.toggle()
       return
     }
     if (evt.meta && evt.name === "m") {
-      dialog.replace(<DialogSelect title="Select model" />)
+      const options = pipe(
+        sync.data.provider,
+        flatMap((provider) => pipe(
+          provider.models,
+          entries(),
+          map(([model, info]) => ({
+            key: `${provider.id}/${model}`,
+            title: info.name ?? model,
+            description: provider.name,
+            category: provider.name,
+          })),
+        )),
+      )
+      dialog.replace(<DialogSelect title="Select model" options={options} />)
       return
     }
   })

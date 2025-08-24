@@ -4,6 +4,19 @@ import { Theme } from "../context/theme"
 import { RGBA } from "@opentui/core"
 import { createStore, produce } from "solid-js/store"
 
+const Border = {
+  topLeft: "+",
+  topRight: "+",
+  bottomLeft: "+",
+  bottomRight: "+",
+  horizontal: "-",
+  vertical: "|",
+  topT: "+",
+  bottomT: "+",
+  leftT: "+",
+  rightT: "+",
+  cross: "+",
+}
 export function Dialog(props: ParentProps) {
   const dimensions = useTerminalDimensions()
 
@@ -69,7 +82,7 @@ function init() {
 
 export type DialogContext = ReturnType<typeof init>
 
-const ctx = createContext<DialogContext>(init())
+const ctx = createContext<DialogContext>()
 
 export function DialogProvider(props: ParentProps) {
   const value = init()

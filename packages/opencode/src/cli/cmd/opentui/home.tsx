@@ -1,7 +1,7 @@
 import { createEffect } from "solid-js";
 import { Installation } from "../../../installation";
 import { Theme } from "./context/theme";
-import { InputRenderable, TextAttributes } from "@opentui/core"
+import { InputRenderable, TextAttributes, bold, fg } from "@opentui/core"
 import { useDialog } from "./ui/dialog";
 
 export function Home() {
@@ -57,15 +57,14 @@ function Prompt() {
           <text fg={Theme.textMuted}>┃</text>
         </group>
       </group>
-      <group paddingLeft={2} paddingRight={2} flexDirection="row" justifyContent="space-between">
-        <group flexDirection="row">
-          <text>enter </text>
-          <text fg={Theme.textMuted}>send</text>
-        </group>
-        <group flexDirection="row">
-          <text fg={Theme.textMuted}>opencode </text>
-          <text>Sonic</text>
-        </group>
+      <group paddingLeft={2} paddingRight={1} flexDirection="row" justifyContent="space-between">
+        <text>
+          enter {fg(Theme.textMuted)("send")}
+        </text>
+        <text>
+          {fg(Theme.textMuted)("opencode ")}
+          {bold("Sonic")}
+        </text>
       </group >
     </group>
   )
@@ -73,13 +72,9 @@ function Prompt() {
 
 function HelpRow(props: { children: string, slash: string }) {
   return (
-    <group flexDirection="row">
-      <text fg={Theme.primary} attributes={TextAttributes.BOLD}>/{props.slash.padEnd(10, " ")}</text>
-      <text>{props.children}</text>
-      <group flexGrow={1} flexDirection="row" justifyContent="flex-end">
-        <text fg={Theme.textMuted}>ctrl+x n</text>
-      </group>
-    </group >
+    <text>
+      {bold(fg(Theme.primary)("/" + props.slash.padEnd(10, " ")))} {props.children.padEnd(15, " ")} {fg(Theme.textMuted)("ctrl+x n")}
+    </text>
   )
 }
 

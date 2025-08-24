@@ -1,4 +1,3 @@
-import { createStore } from "solid-js/store"
 
 const OPENCODE_THEME = {
   "primary": {
@@ -256,9 +255,9 @@ type Theme = {
   "syntaxPunctuation": string
 }
 
-const [store] = createStore<Theme>(Object.entries(OPENCODE_THEME).reduce((acc, [key, value]) => {
+
+export const Theme = Object.entries(OPENCODE_THEME).reduce((acc, [key, value]) => {
   acc[key as keyof Theme] = value.dark
   return acc
-}, {} as Theme))
+}, {} as Theme)
 
-export const Theme = store
