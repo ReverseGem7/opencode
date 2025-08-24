@@ -1,7 +1,9 @@
 import { createEffect } from "solid-js";
 import { Installation } from "../../../installation";
 import { Theme } from "./context/theme";
-import { InputRenderable, TextAttributes, bold, fg } from "@opentui/core"
+import { InputRenderable, TextAttributes, bold, fg, borderCharsToArray } from "@opentui/core"
+import { type BorderCharacters } from "@opentui/core";
+import type { BoxElementProps } from "@opentui/solid";
 import { useDialog } from "./ui/dialog";
 
 export function Home() {
@@ -24,6 +26,41 @@ export function Home() {
   )
 }
 
+// see: https://github.com/sst/opentui/issues/64#issuecomment-3218297098
+const border = borderCharsToArray({
+	topLeft: "┃",
+	topRight: "┃",
+	bottomLeft: "┃",
+	bottomRight: "┃",
+	horizontal: "┃",
+	vertical: "┃",
+	topT: "┃",
+	bottomT: "┃",
+	leftT: "┃",
+	rightT: "┃",
+	cross: "┃",
+}) as unknown as BorderCharacters;
+
+function VerticalBorders({
+	borderColor,
+  focusedBorderColor,
+  children,
+	...props
+}: Omit<
+    BoxElementProps,
+	"border" | "customBorderChars" | "borderStyle"
+>) {
+	return (
+		<box
+			border={["left", "right"]}
+      customBorderChars={border}
+      {...{borderColor, focusedBorderColor}}
+		>
+      <box border={false} {...props}>{children}</box>
+		</box>
+	);
+}
+
 function Prompt() {
   let input: InputRenderable
   const dialog = useDialog()
@@ -37,26 +74,18 @@ function Prompt() {
 
   return (
     <group>
-      <group flexDirection="row">
-        <group>
-          <text fg={Theme.textMuted}>┃</text>
-          <text fg={Theme.textMuted}>┃</text>
-          <text fg={Theme.textMuted}>┃</text>
+      <VerticalBorders borderColor={Theme.textMuted}>
+        <group flexDirection="row">
+          <box backgroundColor={Theme.backgroundElement} width={3} border={false} justifyContent="center" alignItems="center">
+            <text attributes={TextAttributes.BOLD} fg={Theme.primary}>{">"}</text>
+          </box>
+          <box border={false} paddingTop={1} paddingBottom={2} backgroundColor={Theme.backgroundElement}>
+            <input ref={r => input = r} onMouseDown={r => r.target?.focus()} focusedBackgroundColor={Theme.backgroundElement} cursorColor={Theme.primary} backgroundColor={Theme.backgroundElement} width={70} />
+          </box>
+          <box backgroundColor={Theme.backgroundElement} width={1} border={false} justifyContent="center" alignItems="center">
+          </box>
         </group>
-        <box backgroundColor={Theme.backgroundElement} width={3} border={false} justifyContent="center" alignItems="center">
-          <text attributes={TextAttributes.BOLD} fg={Theme.primary}>{">"}</text>
-        </box>
-        <box border={false} paddingTop={1} paddingBottom={2} backgroundColor={Theme.backgroundElement}>
-          <input ref={r => input = r} onMouseDown={r => r.target?.focus()} focusedBackgroundColor={Theme.backgroundElement} cursorColor={Theme.primary} backgroundColor={Theme.backgroundElement} width={70} />
-        </box>
-        <box backgroundColor={Theme.backgroundElement} width={1} border={false} justifyContent="center" alignItems="center">
-        </box>
-        <group>
-          <text fg={Theme.textMuted}>┃</text>
-          <text fg={Theme.textMuted}>┃</text>
-          <text fg={Theme.textMuted}>┃</text>
-        </group>
-      </group>
+      </VerticalBorders>
       <group paddingLeft={2} paddingRight={1} flexDirection="row" justifyContent="space-between">
         <text>
           enter {fg(Theme.textMuted)("send")}
